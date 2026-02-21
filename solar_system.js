@@ -8,19 +8,19 @@
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.9;
- 
+
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000005);
- 
+
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 50000);
   camera.position.set(0, 120, 380);
- 
+
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
   controls.minDistance = 20;
   controls.maxDistance = 3000;
- 
+
   // === STAR BACKGROUND ===
   const bgStarGeo = new THREE.BufferGeometry();
   const bgStarCount = 8000;
@@ -42,7 +42,7 @@
   bgStarGeo.setAttribute('color', new THREE.BufferAttribute(bgStarCol, 3));
   const bgStarMat = new THREE.PointsMaterial({ size: 2, vertexColors: true, sizeAttenuation: false, transparent: true, opacity: 0.85 });
   scene.add(new THREE.Points(bgStarGeo, bgStarMat));
- 
+
   // === SUN ===
   const sunGeo = new THREE.SphereGeometry(25, 64, 64);
   const sunMat = new THREE.ShaderMaterial({
@@ -101,7 +101,7 @@
   });
   const sun = new THREE.Mesh(sunGeo, sunMat);
   scene.add(sun);
- 
+
   // Sun glow
   const glowGeo = new THREE.SphereGeometry(32, 32, 32);
   const glowMat = new THREE.ShaderMaterial({
@@ -129,12 +129,12 @@
     depthWrite: false
   });
   scene.add(new THREE.Mesh(glowGeo, glowMat));
- 
+
   // Sun light
   const sunLight = new THREE.PointLight(0xfff5e0, 3, 0, 1.5);
   scene.add(sunLight);
   scene.add(new THREE.AmbientLight(0x111133, 0.3));
- 
+
   // === PLANETS DATA ===
   const planetData = [
     { name: 'Mercury', radius: 2.4,   orbit: 55,   speed: 4.15,  color: 0x8a7a6a, tilt: 0.03,  moons: 0 },
@@ -146,18 +146,18 @@
     { name: 'Uranus',  radius: 7.5,   orbit: 465,  speed: 0.012, color: 0x7de8e8, tilt: 97.8,  moons: 0 },
     { name: 'Neptune', radius: 7.0,   orbit: 570,  speed: 0.006, color: 0x3f54ba, tilt: 28.3,  moons: 0 },
   ];
- 
+
   const orbitLines = [];
   const planetMeshes = [];
   let showOrbits = true;
- 
+
   // Helper: procedural planet texture
   function createPlanetTexture(baseColor, stripeColor, type) {
     const size = 256;
     const canvas2 = document.createElement('canvas');
     canvas2.width = size; canvas2.height = size;
     const ctx = canvas2.getContext('2d');
- 
+
     if (type === 'earth') {
       const grad = ctx.createLinearGradient(0, 0, size, size);
       grad.addColorStop(0, '#1a4a8a');
@@ -218,16 +218,16 @@
         ctx.fillRect(Math.random()*size, Math.random()*size, 4+Math.random()*12, 4+Math.random()*12);
       }
     }
- 
+
     const tex = new THREE.CanvasTexture(canvas2);
     return tex;
   }
- 
+
   planetData.forEach(pd => {
     // Planet mesh
     const geo = new THREE.SphereGeometry(pd.radius, 48, 48);
     let mat;
- 
+
     if (pd.name === 'Earth') {
       mat = new THREE.MeshPhongMaterial({ map: createPlanetTexture(0, 0, 'earth'), shininess: 40 });
     } else if (pd.name === 'Jupiter') {
@@ -241,13 +241,13 @@
     } else {
       mat = new THREE.MeshPhongMaterial({ map: createPlanetTexture(pd.color, 0, 'rocky'), shininess: 10 });
     }
- 
+
     const mesh = new THREE.Mesh(geo, mat);
     mesh.rotation.z = (pd.tilt * Math.PI) / 180;
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     scene.add(mesh);
- 
+
     // Saturn rings
     let ringMesh = null;
     if (pd.rings) {
@@ -268,5 +268,64 @@
       const ringMat = new THREE.MeshBasicMaterial({ map: ringTex, side: THREE.DoubleSide, transparent: true, opacity: 0.85, depthWrite: false });
       ringMesh = new THREE.Mesh(ringGeo, ringMat);
       ringMesh.rotation.x = Math.PI / 2;
-      mesh.add(r
- 
+      mesh.add(ringMesh);
+    }
+
+    // Orbit line
+    const orbitPoints = [];
+    const orbitSegments = 180;
+    for (let i = 0; i <= orbitSegments; i++) {
+      const angle = (i / orbitSegments) * Math.PI * 2;
+      orbitPoints.push(new THREE.Vector3(Math.cos(angle) * pd.orbit, 0, Math.sin(angle) * pd.orbit));
+    }
+    const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+    const orbitMat = new THREE.LineBasicMaterial({ color: 0x334466, transparent: true, opacity: 0.4 });
+    const orbitLine = new THREE.Line(orbitGeo, orbitMat);
+    scene.add(orbitLine);
+    orbitLines.push(orbitLine);
+
+    planetMeshes.push({ mesh, pd, angle: Math.random() * Math.PI * 2, ringMesh });
+  });
+
+  // === ORBIT TOGGLE ===
+  window.setOrbits = function(show) {
+    showOrbits = show;
+    orbitLines.forEach(l => {
+      l.material.opacity = show ? 0.4 : 0;
+    });
+    document.getElementById('btn-orbits-on').classList.toggle('active', show);
+    document.getElementById('btn-orbits-off').classList.toggle('active', !show);
+  };
+
+  // === ANIMATION ===
+  let frame = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    frame++;
+    const t = frame * 0.005;
+
+    sunMat.uniforms.time.value = t;
+    glowMat.uniforms.time.value = t;
+    sun.rotation.y = t * 0.3;
+
+    planetMeshes.forEach(({ mesh, pd, ringMesh }, i) => {
+      planetMeshes[i].angle += pd.speed * 0.003;
+      const angle = planetMeshes[i].angle;
+      mesh.position.x = Math.cos(angle) * pd.orbit;
+      mesh.position.z = Math.sin(angle) * pd.orbit;
+      mesh.rotation.y += 0.008;
+    });
+
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+
