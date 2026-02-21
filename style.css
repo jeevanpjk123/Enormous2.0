@@ -1,0 +1,350 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
+
+:root {
+  --black: #000008;
+  --electric-blue: #00d4ff;
+  --nebula-purple: #7b2fff;
+  --star-gold: #ffd700;
+  --deep-space: #05051a;
+  --glass-bg: rgba(0, 212, 255, 0.05);
+  --glass-border: rgba(0, 212, 255, 0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--black);
+  font-family: 'Exo 2', sans-serif;
+  cursor: crosshair;
+}
+
+canvas {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+/* Page Transition Overlay */
+.page-transition {
+  position: fixed;
+  inset: 0;
+  background: #000008;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.page-transition.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Home Page */
+.home-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.site-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2.5rem, 8vw, 7rem);
+  color: #fff;
+  letter-spacing: 0.15em;
+  text-shadow:
+    0 0 20px var(--electric-blue),
+    0 0 60px var(--electric-blue),
+    0 0 120px rgba(0, 212, 255, 0.4);
+  animation: pulse-glow 3s ease-in-out infinite;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    text-shadow:
+      0 0 20px var(--electric-blue),
+      0 0 60px var(--electric-blue),
+      0 0 120px rgba(0, 212, 255, 0.4);
+  }
+  50% {
+    text-shadow:
+      0 0 30px var(--electric-blue),
+      0 0 90px var(--electric-blue),
+      0 0 180px rgba(123, 47, 255, 0.6),
+      0 0 240px rgba(0, 212, 255, 0.3);
+  }
+}
+
+.tagline {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 300;
+  font-size: clamp(0.85rem, 2vw, 1.15rem);
+  color: rgba(200, 220, 255, 0.75);
+  max-width: 680px;
+  line-height: 1.8;
+  letter-spacing: 0.05em;
+  margin-bottom: 3rem;
+  animation: fadeInUp 1.5s ease 0.5s both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fadeInUp 1.5s ease 1s both;
+}
+
+.glass-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--electric-blue);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 1.1rem 2.5rem;
+  border-radius: 60px;
+  cursor: crosshair;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1), inset 0 0 20px rgba(0, 212, 255, 0.03);
+}
+
+.glass-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.glass-btn:hover {
+  color: #fff;
+  border-color: var(--electric-blue);
+  transform: scale(1.07) translateY(-3px);
+  box-shadow:
+    0 0 40px rgba(0, 212, 255, 0.35),
+    0 0 80px rgba(0, 212, 255, 0.15),
+    inset 0 0 30px rgba(0, 212, 255, 0.08);
+}
+
+.glass-btn:hover::before {
+  opacity: 1;
+}
+
+.glass-btn.purple {
+  color: #c49fff;
+  border-color: rgba(123, 47, 255, 0.4);
+  box-shadow: 0 0 20px rgba(123, 47, 255, 0.1), inset 0 0 20px rgba(123, 47, 255, 0.03);
+}
+
+.glass-btn.purple:hover {
+  color: #fff;
+  border-color: var(--nebula-purple);
+  box-shadow:
+    0 0 40px rgba(123, 47, 255, 0.4),
+    0 0 80px rgba(123, 47, 255, 0.15),
+    inset 0 0 30px rgba(123, 47, 255, 0.08);
+}
+
+/* Shared UI Elements */
+.back-btn {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 100;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--electric-blue);
+  background: rgba(0, 0, 20, 0.6);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  backdrop-filter: blur(15px);
+  padding: 0.6rem 1.3rem;
+  border-radius: 30px;
+  cursor: crosshair;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: var(--electric-blue);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+  color: #fff;
+}
+
+/* Solar System Toggles */
+.orbit-toggle {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toggle-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: rgba(200, 220, 255, 0.7);
+  background: rgba(0, 0, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  padding: 0.55rem 1rem;
+  border-radius: 20px;
+  cursor: crosshair;
+  transition: all 0.3s ease;
+}
+
+.toggle-btn.active {
+  color: var(--electric-blue);
+  border-color: rgba(0, 212, 255, 0.4);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+}
+
+.toggle-btn:hover {
+  background: rgba(0, 212, 255, 0.08);
+}
+
+/* Universe HUD */
+.zoom-hud {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 100;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--electric-blue);
+  background: rgba(0, 0, 20, 0.7);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  backdrop-filter: blur(15px);
+  padding: 0.7rem 1.2rem;
+  border-radius: 30px;
+}
+
+.galaxy-tooltip {
+  position: fixed;
+  z-index: 200;
+  pointer-events: none;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--star-gold);
+  background: rgba(0, 0, 20, 0.85);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  backdrop-filter: blur(15px);
+  padding: 0.5rem 0.9rem;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  white-space: nowrap;
+}
+
+.galaxy-tooltip.visible {
+  opacity: 1;
+}
+
+/* Zoom Slider */
+.zoom-slider-wrap {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  color: rgba(200,220,255,0.5);
+  letter-spacing: 0.1em;
+  background: rgba(0,0,20,0.6);
+  border: 1px solid rgba(0,212,255,0.15);
+  backdrop-filter: blur(15px);
+  padding: 0.7rem 1.5rem;
+  border-radius: 30px;
+}
+
+#zoom-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 200px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--electric-blue), var(--nebula-purple));
+  border-radius: 2px;
+  outline: none;
+  cursor: crosshair;
+}
+
+#zoom-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--electric-blue);
+  box-shadow: 0 0 10px var(--electric-blue);
+  cursor: crosshair;
+}
+
+/* Planet Label */
+.planet-label {
+  position: fixed;
+  pointer-events: none;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: rgba(200, 220, 255, 0.8);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  display: none;
+}
+
+.instructions {
+  position: fixed;
+  bottom: 6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.7rem;
+  color: rgba(200,220,255,0.35);
+  letter-spacing: 0.1em;
+  text-align: center;
+  pointer-events: none;
+}
